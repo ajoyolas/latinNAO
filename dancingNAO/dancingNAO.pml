@@ -28,6 +28,7 @@
         <File name="7-Move_forward" src="Movements/Intermediate/7-Move_forward.py" />
         <File name="8-Move_backward" src="Movements/Intermediate/8-Move_backward.py" />
         <File name="9-Diagonal_left" src="Movements/Intermediate/9-Diagonal_left.py" />
+        <File name="song3" src="song3.mp3" />
     </Resources>
     <Topics />
     <IgnoredPaths />
