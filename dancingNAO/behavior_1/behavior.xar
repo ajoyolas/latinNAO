@@ -26,20 +26,138 @@ import math
 import time
 from naoqi import ALProxy
 
-def crouch():
-    postureProxy.goToPosture("Crouch", 0.5)
-def stand():
-    postureProxy.goToPosture("Stand", 0.5)
-def sit():
-    postureProxy.goToPosture("Sit", 0.5)
-def standInit():
-    postureProxy.goToPosture("StandInit", 0.5)
-def StandZero():
-    postureProxy.goToPosture("StandZero", 0.5)
-def sitRelax():
-    postureProxy.goToPosture("SitRelax", 0.5)
-postureProxy = ALProxy("ALRobotPosture")
-crouch()]]>
+class Latinao:
+    def __init__(self):
+        self.total_time = 3 #total time of the dance in minutes
+        try:
+            self.postureProxy = ALProxy("ALRobotPosture")
+            #motionProxy = ALProxy("ALMotion")
+        except Exception, e:
+            print "Could not create proxy to ALRobotPosture"
+            print "Error was: ", e
+        try:
+            self.motionProxy = ALProxy("ALMotion")
+        except Exception, e:
+            print "Could not create proxy to ALRobotPosture"
+            print "Error was: ", e
+    ##################### Mandatory       #####################
+    def crouch(self):
+        self.postureProxy.goToPosture("Crouch", 0.5)
+    def stand(self):
+        self.postureProxy.goToPosture("Stand", 0.5)
+    def sit(self):
+        self.postureProxy.goToPosture("Sit", 0.5)
+    def standInit(self):
+        self.postureProxy.goToPosture("StandInit", 0.5)
+    def StandZero(self):
+        self.postureProxy.goToPosture("StandZero", 0.5)
+    def sitRelax(self):
+        self.postureProxy.goToPosture("SitRelax", 0.5)
+    ###################    Intermediate   ###################
+    def rotation_handgun(self):
+        RShoulderPitch = 67.7
+        RShoulderRoll = -26.4
+        RElbowYaw = 90.9
+        RElbowRoll = 88.5
+        RWristYaw = 80
+        RHand = 0.35
+        LShoulderPitch = 78.0
+        LShoulderRoll = 16.6
+        LElbowYaw = -68.3
+        LElbowRoll = -49.2
+        LWristYaw = 4.3
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD,     LElbowYaw * almath.TO_RAD,
+        LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        timeLists = 1
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD, RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        timeLists = 1
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        time.sleep(1)
+        # Open RHand
+        RHandAngle = 0.90
+        names = "RHand"
+        angleLists = [ RHandAngle ]
+        timeLists = 1
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+        # NAO:
+        #ttsProxy.say("Inserisci il ventaglio nella mano per favore")
+        #time.sleep(1)
+        # NAO:
+        #ttsProxy.say("Grazie")
+        # Close RHand
+        names = "RHand"
+        timeLists = 1
+        RHandAngle = 0.05
+        angleLists = [ RHandAngle ]
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+    def diagonal_right(self):
+        distance_x_m=0.03
+        distance_y_m=-0.012
+        theta_deg=0.0  #degrees of the diagonal
+        # The command position estimation will be set to the sensor position when the         robot starts moving, so we use sensors first and commands later.
+        initPosition = almath.Pose2D(self.motionProxy.getRobotPosition(True))
+        targetDistance = almath.Pose2D(distance_x_m, distance_y_m, theta_deg * almath.PI / 180)
+        expectedEndPosition = initPosition * targetDistance
+        enableArms = 0
+        self.motionProxy.setMoveArmsEnabled(enableArms, enableArms)
+        self.motionProxy.moveTo(distance_x_m, distance_y_m,theta_deg)
+    def rotation_foot_R(self):
+        self.postureProxy.goToPosture("StandInit", 0.3)
+        self.motionProxy.wbEnable(True)
+        # Legs/Feet Configuration
+        stateName = "Plane"
+        supportLeg = "RLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        stateName = "Fixed"
+        supportLeg = "LLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        # Cartesian foot trajectory
+        # Warning: Needs a PoseInit before executing
+        space      =  motion.FRAME_ROBOT
+        axisMask   = 63                     # control all the effector's axes
+        isAbsolute = False
+        # Lower the Torso and move to the side
+        effector = "Torso"
+        path     = [0.0, 0.00, 0.00, 0.0, 0.0, 0.05]
+        timeList = 3.0 # seconds
+        self.motionProxy.positionInterpolation(effector, space, path, axisMask, timeList, isAbsolute)
+        time.sleep(3) # wait a few seconds
+        # Back to the inizial position
+        self.postureProxy.goToPosture("StandInit", 0.25)
+        self.motionProxy.wbEnable(False)
+    def rotation_foot_L(self):
+        self.postureProxy.goToPosture("StandInit", 0.3)
+        self.motionProxy.wbEnable(True)
+        # Legs/Feet Configuration
+        stateName = "Fixed"
+        supportLeg = "RLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        stateName = "Plane"
+        supportLeg = "LLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        # Cartesian foot trajectory
+        # Warning: Needs a PoseInit before executing
+        space      =  motion.FRAME_ROBOT
+        axisMask   = 63                     # control all the effector's axes
+        isAbsolute = False
+        # Lower the Torso and move to the side
+        effector = "Torso"
+        path     = [0.0, 0.00, 0.00, 0.0, 0.0, 0.05]
+        timeList = 3.0 # seconds
+        self.motionProxy.positionInterpolation(effector, space, path, axisMask, timeList, isAbsolute)
+        time.sleep(3) # wait a few seconds
+        # Back to the inizial position
+        self.postureProxy.goToPosture("StandInit", 0.25)
+        self.motionProxy.wbEnable(False)
+#####################################################################################
+#                                          MAIN
+#####################################################################################
+ln = Latinao()
+ln.rotation_foot_L()]]>
 </content>
                             </script>
                             <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
@@ -48,6 +166,7 @@ crouch()]]>
                             <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
                         </Box>
                         <Link inputowner="1" indexofinput="2" outputowner="0" indexofoutput="2" />
+                        <Link inputowner="0" indexofinput="4" outputowner="1" indexofoutput="4" />
                     </Diagram>
                 </BehaviorKeyframe>
             </BehaviorLayer>
