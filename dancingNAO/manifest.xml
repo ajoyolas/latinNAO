@@ -1,22 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<<<<<<< HEAD:LatinNao/manifest.xml
-<package version="0.0.0" uuid="latinnao-ff8b24">
-=======
-<package uuid="dancingnao-de0efa">
->>>>>>> 9f512fce226498d91e74ea526cafbfd916d30f51:dancingNAO/manifest.xml
- <names>
-  <name lang="en_US">dancingNAO</name>
- </names>
- <supportedLanguages>
-  <language>en_US</language>
- </supportedLanguages>
- <descriptionLanguages>
-  <language>en_US</language>
- </descriptionLanguages>
- <contents>
-  <behaviorContent path="behavior_1">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
- </contents>
+<package>
+ <contents/>
 </package>

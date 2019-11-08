@@ -29,6 +29,7 @@
         <File name="8-Move_backward" src="Movements/Intermediate/8-Move_backward.py" />
         <File name="9-Diagonal_left" src="Movements/Intermediate/9-Diagonal_left.py" />
         <File name="song3" src="song3.mp3" />
+        <File name="" src=".DS_Store" />
     </Resources>
     <Topics />
     <IgnoredPaths />
