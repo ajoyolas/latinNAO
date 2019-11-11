@@ -3,6 +3,7 @@
     <Manifest src="manifest.xml" />
     <BehaviorDescriptions>
         <BehaviorDescription name="behavior" src="behavior_1" xar="behavior.xar" />
+        <BehaviorDescription name="behavior" src="dancingNAO/behavior_1" xar="behavior.xar" />
     </BehaviorDescriptions>
     <Dialogs />
     <Resources>
@@ -29,6 +30,33 @@
         <File name="8-Move_backward" src="Movements/Intermediate/8-Move_backward.py" />
         <File name="9-Diagonal_left" src="Movements/Intermediate/9-Diagonal_left.py" />
         <File name="song3" src="song3.mp3" />
+        <File name="" src=".DS_Store" />
+        <File name="" src="behavior_1/.DS_Store" />
+        <File name="birthday_dance_no_sound" src="dancingNAO/Movements/Crg_movements/birthday_dance_no_sound.crg" />
+        <File name="sing_with_me" src="dancingNAO/Movements/Crg_movements/sing_with_me.crg" />
+        <File name="sprinkler" src="dancingNAO/Movements/Crg_movements/sprinkler.crg" />
+        <File name="workout" src="dancingNAO/Movements/Crg_movements/workout.crg" />
+        <File name="1-Rotation_handgun_object" src="dancingNAO/Movements/Intermediate/1-Rotation_handgun_object.py" />
+        <File name="10-Diagonal_right" src="dancingNAO/Movements/Intermediate/10-Diagonal_right.py" />
+        <File name="12-Rotation_foot_RLeg" src="dancingNAO/Movements/Intermediate/12-Rotation_foot_RLeg.py" />
+        <File name="13-Rotation_foot_LLeg" src="dancingNAO/Movements/Intermediate/13-Rotation_foot_LLeg.py" />
+        <File name="2-Right_arm" src="dancingNAO/Movements/Intermediate/2-Right_arm.py" />
+        <File name="3-Double_movement" src="dancingNAO/Movements/Intermediate/3-Double_movement.py" />
+        <File name="4-Arms_opening" src="dancingNAO/Movements/Intermediate/4-Arms_opening.py" />
+        <File name="5-Union_arms" src="dancingNAO/Movements/Intermediate/5-Union_arms.py" />
+        <File name="7-Move_forward" src="dancingNAO/Movements/Intermediate/7-Move_forward.py" />
+        <File name="8-Move_backward" src="dancingNAO/Movements/Intermediate/8-Move_backward.py" />
+        <File name="9-Diagonal_left" src="dancingNAO/Movements/Intermediate/9-Diagonal_left.py" />
+        <File name="11-Stand" src="dancingNAO/Movements/Mandatory/11-Stand.py" />
+        <File name="14-StandInit" src="dancingNAO/Movements/Mandatory/14-StandInit.py" />
+        <File name="15-StandZero" src="dancingNAO/Movements/Mandatory/15-StandZero.py" />
+        <File name="16-Sit" src="dancingNAO/Movements/Mandatory/16-Sit.py" />
+        <File name="17-SitRelax" src="dancingNAO/Movements/Mandatory/17-SitRelax.py" />
+        <File name="6-Crouch" src="dancingNAO/Movements/Mandatory/6-Crouch.py" />
+        <File name="conCalma" src="dancingNAO/conCalma.mp3" />
+        <File name="dancingNAO" src="dancingNAO/dancingNAO.pml" />
+        <File name="manifest" src="dancingNAO/manifest.xml" />
+        <File name="song3" src="dancingNAO/song3.mp3" />
     </Resources>
     <Topics />
     <IgnoredPaths />
