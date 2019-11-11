@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8" ?><ChoregrapheProject xmlns="http://www.aldebaran-robotics.com/schema/choregraphe/project.xsd" xar_version="3"><Box name="root" id="-1" localization="8" tooltip="Root box of Choregraphe&apos;s behavior. Highest level possible." x="0" y="0"><bitmap>media/images/box/root.png</bitmap><script language="4"><content><![CDATA[]]></content></script><Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" /><Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" /><Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" /><Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" /><Timeline enable="0"><BehaviorLayer name="behavior_layer1"><BehaviorKeyframe name="keyframe1" index="1"><Diagram><Box name="main" id="1" localization="8" tooltip="" x="153" y="65"><bitmap>media/images/box/box-python-script.png</bitmap><script language="4"><content><![CDATA[import sys
+import motion
+import almath
+import math
+import time
+from naoqi import ALProxy
+
+class Latinao:
+    def __init__(self):
+        self.total_time = 3 #total time of the dance in minutes
+        try:
+            self.postureProxy = ALProxy("ALRobotPosture")
+            #motionProxy = ALProxy("ALMotion")
+        except Exception, e:
+            print "Could not create proxy to ALRobotPosture"
+            print "Error was: ", e
+        try:
+            self.motionProxy = ALProxy("ALMotion")
+        except Exception, e:
+            print "Could not create proxy to ALRobotPosture"
+            print "Error was: ", e
+
+    ##################### Mandatory       #####################
+
+    def crouch(self):
+        self.postureProxy.goToPosture("Crouch", 0.5)
+    def stand(self):
+        self.postureProxy.goToPosture("Stand", 0.5)
+    def sit(self):
+        self.postureProxy.goToPosture("Sit", 0.5)
+    def standInit(self):
+        self.postureProxy.goToPosture("StandInit", 0.5)
+    def StandZero(self):
+        self.postureProxy.goToPosture("StandZero", 0.5)
+    def sitRelax(self):
+        self.postureProxy.goToPosture("SitRelax", 0.5)
+
+    ###################    Intermediate   ###################
+
+    def rotation_handgun(self):
+        RShoulderPitch = 67.7
+        RShoulderRoll = -26.4
+        RElbowYaw = 90.9
+        RElbowRoll = 88.5
+        RWristYaw = 80
+        RHand = 0.35
+        LShoulderPitch = 78.0
+        LShoulderRoll = 16.6
+        LElbowYaw = -68.3
+        LElbowRoll = -49.2
+        LWristYaw = 4.3
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD,     LElbowYaw * almath.TO_RAD,
+        LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        timeLists = 1
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD, RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        timeLists = 1
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        time.sleep(1)
+        # Open RHand
+        RHandAngle = 0.90
+        names = "RHand"
+        angleLists = [ RHandAngle ]
+        timeLists = 1
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+        # NAO:
+        #ttsProxy.say("Inserisci il ventaglio nella mano per favore")
+        #time.sleep(1)
+        # NAO:
+        #ttsProxy.say("Grazie")
+        # Close RHand
+        names = "RHand"
+        timeLists = 1
+        RHandAngle = 0.05
+        angleLists = [ RHandAngle ]
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+
+    def diagonal_right(self):
+        distance_x_m=0.03
+        distance_y_m=-0.012
+        theta_deg=0.0  #degrees of the diagonal
+        # The command position estimation will be set to the sensor position when the         robot starts moving, so we use sensors first and commands later.
+        initPosition = almath.Pose2D(self.motionProxy.getRobotPosition(True))
+        targetDistance = almath.Pose2D(distance_x_m, distance_y_m, theta_deg * almath.PI / 180)
+        expectedEndPosition = initPosition * targetDistance
+        enableArms = 0
+        self.motionProxy.setMoveArmsEnabled(enableArms, enableArms)
+        self.motionProxy.moveTo(distance_x_m, distance_y_m,theta_deg)
+
+    def rotation_foot_R(self):
+        self.postureProxy.goToPosture("StandInit", 0.3)
+        self.motionProxy.wbEnable(True)
+        # Legs/Feet Configuration
+        stateName = "Plane"
+        supportLeg = "RLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        stateName = "Fixed"
+        supportLeg = "LLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        # Cartesian foot trajectory
+        # Warning: Needs a PoseInit before executing
+        space      =  motion.FRAME_ROBOT
+        axisMask   = 63                     # control all the effector's axes
+        isAbsolute = False
+        # Lower the Torso and move to the side
+        effector = "Torso"
+        path     = [0.0, 0.00, 0.00, 0.0, 0.0, 0.05]
+        timeList = 3.0 # seconds
+        self.motionProxy.positionInterpolation(effector, space, path, axisMask, timeList, isAbsolute)
+        time.sleep(0.2) # wait a few seconds
+        # Back to the inizial position
+        self.postureProxy.goToPosture("StandInit", 0.25)
+        self.motionProxy.wbEnable(False)
+
+    def rotation_foot_L(self):
+        self.postureProxy.goToPosture("StandInit", 0.3)
+        self.motionProxy.wbEnable(True)
+        # Legs/Feet Configuration
+        stateName = "Fixed"
+        supportLeg = "RLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        stateName = "Plane"
+        supportLeg = "LLeg"
+        self.motionProxy.wbFootState(stateName, supportLeg)
+        # Cartesian foot trajectory
+        # Warning: Needs a PoseInit before executing
+        space      =  motion.FRAME_ROBOT
+        axisMask   = 63                     # control all the effector's axes
+        isAbsolute = False
+        # Lower the Torso and move to the side
+        effector = "Torso"
+        path     = [0.0, 0.00, 0.00, 0.0, 0.0, 0.05]
+        timeList = 3.0 # seconds
+        self.motionProxy.positionInterpolation(effector, space, path, axisMask, timeList, isAbsolute)
+        time.sleep(0.2) # wait a few seconds
+        # Back to the inizial position
+        self.postureProxy.goToPosture("StandInit", 0.25)
+        self.motionProxy.wbEnable(False)
+<<<<<<< HEAD
+
+    def move_forward(self):
+        distance_x_m=0.08
+        distance_y_m=0.0
+        theta_deg=0.0
+        # The command position estimation will be set to the sensor position when the robot starts moving, so we use sensors first and commands later.
+        initPosition = almath.Pose2D(self.motionProxy.getRobotPosition(True))
+        targetDistance = almath.Pose2D(distance_x_m, distance_y_m, theta_deg * almath.PI / 180)
+        expectedEndPosition = initPosition * targetDistance
+        enableArms = 0
+        self.motionProxy.setMoveArmsEnabled(enableArms, enableArms)
+        self.motionProxy.moveTo(distance_x_m, distance_y_m,theta_deg)
+
+    def move_backward(self):
+        distance_x_m=-0.08
+        distance_y_m=0.0
+        theta_deg=0.0
+        # The command position estimation will be set to the sensor position when the robot starts moving, so we use sensors first and commands later.
+        initPosition = almath.Pose2D(self.motionProxy.getRobotPosition(True))
+        targetDistance = almath.Pose2D(distance_x_m, distance_y_m, theta_deg * almath.PI / 180)
+        expectedEndPosition = initPosition * targetDistance
+        enableArms = 0
+        self.motionProxy.setMoveArmsEnabled(enableArms, enableArms)
+        self.motionProxy.moveTo(distance_x_m, distance_y_m,theta_deg)
+
+    def arms_opening(self):
+        ########## Start position ###########
+=======
+    def arms_opening(self):
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        RShoulderPitch = 78.0
+        RShoulderRoll = -16.6
+        RElbowYaw = 68.3
+        RElbowRoll = 49.2
+        RWristYaw = 4.3
+        RHand = 0.10
+        LShoulderPitch = 78.0
+        LShoulderRoll = 16.6
+        LElbowYaw = -68.3
+        LElbowRoll = -49.2
+        LWristYaw = 4.3
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand ]
+        timeLists = 2
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand ]
+        timeLists = 2
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+        time.sleep(0.2) # Waiting between the two movements
+<<<<<<< HEAD
+        ########## Movement arms  ###########
+=======
+
+        ########## Movement arms  ###########
+
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        RShoulderPitch = 24.9
+        RShoulderRoll = 8.0
+        RElbowYaw = 67.8
+        RElbowRoll = 14.7
+        RWristYaw = 79.3
+<<<<<<< HEAD
+        RHand = 0.35
+=======
+    	RHand = 0.35
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        LShoulderPitch = 68.8
+        LShoulderRoll = 14.3
+        LElbowYaw = -68.4
+        LElbowRoll = -53.9
+<<<<<<< HEAD
+        LWristYaw = 4.5
+=======
+    	LWristYaw = 4.5
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.08)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.08)
+        time.sleep(1.2)
+<<<<<<< HEAD
+        # Close arms
+=======
+
+        # Close arms
+
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        RShoulderPitch = 24.5
+        RShoulderRoll = 16.9
+        RElbowYaw = 67.4
+        RElbowRoll = 14.9
+        RWristYaw = 79.1
+        RHand = 0.35
+        LShoulderPitch = 66.7
+        LShoulderRoll = -12.3
+        LElbowYaw = -69.0
+<<<<<<< HEAD
+        LElbowRoll = -53.7
+=======
+    	LElbowRoll = -53.7
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        LWristYaw = 4.6
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.1)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.15)
+        time.sleep(0.4)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        # Stretch and raise arms
+        RShoulderPitch = 24.7
+        RShoulderRoll = -51.8
+        RElbowYaw = 45.6
+        RElbowRoll = 14.7
+        RWristYaw = 78.9
+        RHand = 0.35
+        LShoulderPitch = 24.7
+        LShoulderRoll = 51.8
+        LElbowYaw = -45.6
+        LElbowRoll = -14.7
+        LWristYaw = -78.9
+        LHand = 0.0
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.1)
+        time.sleep(0.2)
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.1)
+        time.sleep(2.2)
+<<<<<<< HEAD
+        # Final position
+=======
+
+        # Final position
+
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+        RShoulderPitch = 66.4
+        RShoulderRoll = -26.1
+        RElbowYaw = 106.0
+        RElbowRoll = 80
+        RWristYaw = 85
+        RHand = 0.35
+        LShoulderPitch = 66.4
+        LShoulderRoll = 26.1
+        LElbowYaw = -106.0
+        LElbowRoll = -44.2
+        LWristYaw = 4.6
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        timeLists = 1.5
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        timeLists = 1.5
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+<<<<<<< HEAD
+
+    def union_arms(self):
+        RShoulderPitch = 67.7
+        RShoulderRoll = -26.4
+        RElbowYaw = 90.9
+        RElbowRoll = 88.5
+        RWristYaw = 59.2
+        RHand = 0.35
+        LShoulderPitch = 80.2
+        LShoulderRoll = 24.1
+        LElbowYaw = -90.0
+        LElbowRoll = -4.4
+        LWristYaw = 0.5
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        timeLists = 1
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        timeLists = 1
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+        time.sleep(0.2) # Waiting between the two movements
+        ####### Movement arms  ###########
+        # Open/extend arms
+        RShoulderPitch = 58.8
+        RShoulderRoll = -25.9
+        RElbowYaw = 90.6
+        RElbowRoll = 25.0
+        RWristYaw = 3.2
+        RHand = 0.35
+        LShoulderPitch = 58.8
+        LShoulderRoll = 25.9
+        LElbowYaw = -90.6
+        LElbowRoll = -25.0
+        LWristYaw = -59.4
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        timeLists = 3
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        timeLists = 2
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+        RWristYaw = 59.4
+        self.motionProxy.post.angleInterpolation("RWristYaw", RWristYaw * almath.TO_RAD, 1, True)
+        time.sleep(0.5) # For a better movements synchronization
+        # Close arms
+        RShoulderPitch = 45.9
+        RShoulderRoll = 15.3
+        RElbowRoll = 21.6
+        LShoulderPitch = 45.9
+        LShoulderRoll = -15.3
+        LElbowRoll = -21.6
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        timeLists = 2
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        timeLists = 2
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+        # Wait a few seconds
+        time.sleep(1)
+        # Go to final position
+        RShoulderPitch = 78.0
+        RShoulderRoll = -16.6
+        RElbowYaw = 68.3
+        RElbowRoll = 49.2
+        RWristYaw = 4.3
+        RHand = 0.35
+        LShoulderPitch = 78.0
+        LShoulderRoll = 16.6
+        LElbowYaw = -68.3
+        LElbowRoll = -49.2
+        LWristYaw = 4.3
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        timeLists = 1.5
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        timeLists = 1.5
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+
+    def double_movement(self):
+        RShoulderPitch = 78.0
+        RShoulderRoll = -39.9
+        RElbowYaw = 68.3
+        RElbowRoll = 57.2
+        RWristYaw = 95
+        RHand = 0.10
+        LShoulderPitch = 78.0
+        LShoulderRoll = 39.9
+        LElbowYaw = -68.3
+        LElbowRoll = -57.2
+        LWristYaw = 4.3
+        LHand = 0.0
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand ]
+        timeLists = 2
+        self.motionProxy.post.angleInterpolation(names, angleLists, timeLists, True)
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand ]
+        timeLists = 2
+        self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+        time.sleep(0.5) # Waiting between the two movements
+        ########## Movement arms ###########
+        # Start rotation movement
+        RShoulderPitch = 77.7
+        RShoulderRoll = -39.5
+        RElbowYaw = 33.7
+        RElbowRoll = 70
+        RWristYaw = 95
+        RHand = 0.10
+        LShoulderPitch = 77.8
+        LShoulderRoll = 49.2
+        LElbowYaw = -68.5
+        LElbowRoll = -9.4
+        LWristYaw = 4.5
+        LHand = 0.0
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.05)
+        time.sleep(0.2)
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.08)
+        time.sleep(1.2)
+        # Arms parallel to the floor
+        RShoulderPitch = 15.1
+        RShoulderRoll = -10.6
+        RElbowYaw = 9.5
+        RElbowRoll = 70
+        RWristYaw = 95
+        RHand = 0.10
+        LShoulderPitch = 77.8
+        LShoulderRoll = 75.8
+        LElbowYaw = -68.5
+        LElbowRoll = -2.5
+        LWristYaw = 4.5
+        LHand = 0.0
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.15)
+        time.sleep(0.3)
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        self.motionProxy.setAngles(names, angleLists, 0.1)
+        time.sleep(0.6)
+        # Go to final position
+        RShoulderPitch = 62.4
+        RShoulderRoll = -15.7
+        RElbowYaw = 51.7
+        RElbowRoll = 81
+        RWristYaw = 105
+        RHand = 0.10
+        LShoulderPitch = 27.0
+        LShoulderRoll = 29.8
+        LElbowYaw = -72.9
+        LElbowRoll = -27.2
+        LWristYaw = 4.5
+        LHand = 0.0
+        names = "RArm"
+        angleLists = [ RShoulderPitch * almath.TO_RAD, RShoulderRoll * almath.TO_RAD, RElbowYaw * almath.TO_RAD,
+                       RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
+        self.motionProxy.post.angleInterpolation(names, angleLists, 1.4, True)
+        time.sleep(0.3)
+        names = "LArm"
+        angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
+                       LElbowRoll * almath.TO_RAD, LWristYaw * almath.TO_RAD, LHand * almath.TO_RAD ]
+        self.motionProxy.angleInterpolation(names, angleLists, 1.4, True)
+
+=======
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
+#####################################################################################
+#                                          MAIN
+#####################################################################################
+ln = Latinao()
+<<<<<<< HEAD
+ln.move_forward()
+ln.standInit()]]></content></script><Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" /><Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" /><Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" /><Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" /></Box><Link inputowner="1" indexofinput="2" outputowner="0" indexofoutput="2" /><Link inputowner="0" indexofinput="4" outputowner="1" indexofoutput="4" /></Diagram></BehaviorKeyframe></BehaviorLayer></Timeline></Box></ChoregrapheProject>
+=======
+ln.arms_opening()]]>
+</content>
+                            </script>
+                            <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                            <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+                            <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
+                            <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
+                        </Box>
+                        <Link inputowner="1" indexofinput="2" outputowner="0" indexofoutput="2" />
+                        <Link inputowner="0" indexofinput="4" outputowner="1" indexofoutput="4" />
+                    </Diagram>
+                </BehaviorKeyframe>
+            </BehaviorLayer>
+        </Timeline>
+    </Box>
+</ChoregrapheProject>
+>>>>>>> 03a124dcfec8abb90f4cd0cf40be1b8c8afeca16
