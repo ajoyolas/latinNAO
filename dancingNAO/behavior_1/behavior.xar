@@ -15,13 +15,13 @@
             <BehaviorLayer name="behavior_layer1">
                 <BehaviorKeyframe name="keyframe1" index="1">
                     <Diagram>
-                        <Box name="main" id="1" localization="8" tooltip="" x="153" y="65">
+                        <Box name="main" id="1" localization="8" tooltip="" x="266" y="36">
                             <bitmap>media/images/box/box-python-script.png</bitmap>
                             <script language="4">
                                 <content>
                                     <![CDATA[import sys
 import motion
-import almath
+import almath as am
 import math
 import time
 from naoqi import ALProxy
@@ -29,16 +29,23 @@ from naoqi import ALProxy
 class Latinao:
     def __init__(self):
         self.total_time = 3 #total time of the dance in minutes
+        #proxy posture
         try:
             self.postureProxy = ALProxy("ALRobotPosture")
-            #motionProxy = ALProxy("ALMotion")
         except Exception, e:
             print "Could not create proxy to ALRobotPosture"
             print "Error was: ", e
+        #proxy motion
         try:
             self.motionProxy = ALProxy("ALMotion")
         except Exception, e:
-            print "Could not create proxy to ALRobotPosture"
+            print "Could not create proxy to ALMotion"
+            print "Error was: ", e
+        #proxy leds
+        try:
+            self.ledsProxy = ALProxy("ALLeds")
+        except Exception, e:
+            print "Could not create proxy to ALLeds"
             print "Error was: ", e
     ##################### Mandatory       #####################
     def crouch(self):
@@ -185,12 +192,12 @@ class Latinao:
         RElbowYaw = 67.8
         RElbowRoll = 14.7
         RWristYaw = 79.3
-    	RHand = 0.35
+        RHand = 0.35
         LShoulderPitch = 68.8
         LShoulderRoll = 14.3
         LElbowYaw = -68.4
         LElbowRoll = -53.9
-    	LWristYaw = 4.5
+        LWristYaw = 4.5
         LHand = 0.0
         names = "LArm"
         angleLists = [ LShoulderPitch * almath.TO_RAD, LShoulderRoll * almath.TO_RAD, LElbowYaw * almath.TO_RAD,
@@ -213,7 +220,7 @@ class Latinao:
         LShoulderPitch = 66.7
         LShoulderRoll = -12.3
         LElbowYaw = -69.0
-    	LElbowRoll = -53.7
+        LElbowRoll = -53.7
         LWristYaw = 4.6
         LHand = 0.0
         names = "LArm"
@@ -274,11 +281,131 @@ class Latinao:
                        RElbowRoll * almath.TO_RAD, RWristYaw * almath.TO_RAD, RHand * almath.TO_RAD ]
         timeLists = 1.5
         self.motionProxy.angleInterpolation(names, angleLists, timeLists, True)
+    def led_face(self):
+        rDuration = 1.0;
+        """self.ledsProxy.post.fadeRGB( "FaceLedsTop", 0x0000ff, rDuration );
+        self.ledsProxy.post.fadeRGB( "FaceLedsInternal", 0x00ff00, rDuration );
+        self.ledsProxy.post.fadeRGB( "FaceLedsBottom", 0x0000ff, rDuration );
+        self.ledsProxy.fadeRGB( "FaceLedsExternal", 0x0000ff, rDuration );
+        """
+        name = 'EarLeds'
+        intensity = 0.5
+        duration = 1.0
+        self.ledsProxy.fade(name, intensity, duration)
+    def move_to(self, x, y):
+        initPosition = am.Pose2D(self.motionProxy.getRobotPosition(False))
+        Theta = math.pi/2.0
+        self.motionProxy.post.moveTo(x, y, Theta)
+        endPosition = am.Pose2D(self.motionProxy.getRobotPosition(False))
+        #motionProxy.stopMove()
+        print endPosition
+    def move_to_with_velocity(self,x,y,t,f):
+        time = 10 # seconds
+        while (t<testTime):
+            # TARGET VELOCITY
+            # Default walk (MaxStepX = 0.04 m)
+            self.motionProxy.setWalkTargetVelocity(x, y, t, f)
+            time.sleep(3.0)
+    def move_head_walking(self):
+        testTime = 10 # seconds
+        t = 0
+        dt = 0.2
+        while (t<testTime):
+
+            # WALK
+            X         = 0.4#random.uniform(0.4, 1.0)
+            Y         = -0.4#andom.uniform(-0.4, 0.4)
+            Theta     = 0-0.4#random.uniform(-0.4, 0.4)
+            Frequency = 0.5#random.uniform(0.5, 1.0)
+            self.motionProxy.setWalkTargetVelocity(X, Y, Theta, Frequency)
+
+            # JERKY HEAD
+            self.motionProxy.setAngles("HeadYaw", -1.0, 0.7) #angle, speed
+            self.motionProxy.setAngles("HeadPitch", -0.5, 0.7)
+            t = t + dt
+            time.sleep(dt)
+        # stop walk on the next double support
+        self.motionProxy.stopMove()
+    def move_head_hips(self, targetCoordinateList):
+        effectorName = "Head"
+        # Active Head tracking
+        isEnabled = True
+        self.motionProxy.wbEnableEffectorControl(effectorName, isEnabled)
+
+        # Example showing how to set orientation target for Head tracking
+        # The 3 coordinates are absolute head orientation in NAO_SPACE
+        # Rotation in RAD in x, y and z axis
+
+        # X Axis Head Orientation feasible movement = [-20.0, +20.0] degree
+        # Y Axis Head Orientation feasible movement = [-75.0, +70.0] degree
+        # Z Axis Head Orientation feasible movement = [-30.0, +30.0] degree
+
+        """targetCoordinateList = [
+        [+20.0,  00.0,  00.0], # target 0
+        [-20.0,  00.0,  00.0], # target 1
+        [+20.0,  00.0,  00.0], # target 1
+        [ 00.0, +70.0,  00.0], # target 2
+        [ 00.0, +70.0, +30.0], # target 3
+        [ 00.0, +70.0, -30.0], # target 4
+        [ 00.0, -75.0,  00.0], # target 5
+        [ 00.0, -75.0, +30.0], # target 6
+        [ 00.0, -75.0, -30.0], # target 7
+        [ 00.0,  00.0,  00.0], # target 8
+
+        ]"""
+
+        # wbSetEffectorControl is a non blocking function
+        # time.sleep allow head go to his target
+        # The recommended minimum period between two successives set commands is
+        # 0.2 s.
+        for targetCoordinate in targetCoordinateList:
+            targetCoordinate = [target*math.pi/180.0 for target in targetCoordinate]
+            self.motionProxy.wbSetEffectorControl(effectorName, targetCoordinate)
+            time.sleep(3.0)
+
+        # Deactivate Head tracking
+        isEnabled = False
+        self.motionProxy.wbEnableEffectorControl(effectorName, isEnabled)
+    def move_bodydiago_armsupdown(self):
+        targetCoordinateList = [
+        [+20.0,  00.0,  00.0], # target 0
+        [-20.0,  00.0,  00.0], # target 1
+        [+20.0,  00.0,  00.0], # target 1
+        [ 00.0, +70.0,  00.0], # target 2
+        [ 00.0, +70.0, +30.0], # target 3
+        [ 00.0, +70.0, -30.0], # target 4
+        [ 00.0, -75.0,  00.0], # target 5
+        [ 00.0, -75.0, +30.0], # target 6
+        [ 00.0, -75.0, -30.0], # target 7
+        [ 00.0,  00.0,  00.0], # target 8
+        ]
+        self.move_head_hips(targetCoordinateList)
+        self.postureProxy.goToPosture("StandInit", 0.5)
+    def arms_motion(self):
+        testTime = 10 # seconds
+        t = 0
+        dt = 0.2
+        JointNames = ["LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll"]
+        Arm1 = [-80,  30, 0, -50]
+        Arm1 = [ x * motion.TO_RAD for x in Arm1]
+        Arm2 = [-40,  50, 0, -80]
+        Arm2 = [ x * motion.TO_RAD for x in Arm2]
+        pFractionMaxSpeed = 0.6
+        while (t<testTime):
+            self.motionProxy.angleInterpolationWithSpeed(JointNames, Arm1, pFractionMaxSpeed)
+            self.motionProxy.angleInterpolationWithSpeed(JointNames, Arm2, pFractionMaxSpeed)
+            self.motionProxy.angleInterpolationWithSpeed(JointNames, Arm1, pFractionMaxSpeed)
+            t = t + dt
+
+        #time.sleep(2.0)
 #####################################################################################
 #                                          MAIN
 #####################################################################################
 ln = Latinao()
-ln.arms_opening()]]>
+#ln.move_to_with_velocity(0.1,0,0.0,0.0)
+ln.arms_motion()
+#ln.postureProxy.goToPosture("StandInit", 0.5)
+#ln.motionProxy.stopMove()]]>
 </content>
                             </script>
                             <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
@@ -287,7 +414,6 @@ ln.arms_opening()]]>
                             <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
                         </Box>
                         <Link inputowner="1" indexofinput="2" outputowner="0" indexofoutput="2" />
-                        <Link inputowner="0" indexofinput="4" outputowner="1" indexofoutput="4" />
                     </Diagram>
                 </BehaviorKeyframe>
             </BehaviorLayer>
