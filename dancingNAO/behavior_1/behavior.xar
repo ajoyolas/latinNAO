@@ -1679,8 +1679,8 @@ class Latinao:
 #                                          MAIN
 #####################################################################################
 ln = Latinao()
-ln.mov_3()
-#ln.venia() #last_movement
+#ln.mov_3()
+ln.venia() #last_movement
 #ln.move_to_with_velocity(0.1,0,0.0,0.0)
 #ln.open_both_hands()
 #ln.close_both_hands()
