@@ -1,3 +1,45 @@
 
 dancingNAO/manifest.xml
 dancingNAO/manifest.xml
+*.xml
+dancingNAO/arm_dance/arm_dance.pml
+dancingNAO/arm_dance/arm_dance/behavior.xar
+dancingNAO/armdance/arm_dance/behavior.xar
+dancingNAO/armdance/armdance.pml
+dancingNAO/birthday_dance_no_sound/birthday_dance_no_sound.pml
+dancingNAO/birthday_dance_no_sound/birthday_dance_no_sound/behavior.xar
+dancingNAO/Dances The Macarena/Dances The Macarena.pml
+dancingNAO/Dances The Macarena/Dances The Macarena/behavior.xar
+dancingNAO/Dances The Macarena/Dances The Macarena/Macarena - Various Artists.mp3
+dancingNAO/dancingNAO/behavior_1/song3.mp3
+dancingNAO/dancingNAO/behavior_1/song3.wav
+dancingNAO/dancingNAO/conCalma.mp3
+dancingNAO/dancingNAO/Movements/Crg_movements/birthday_dance_no_sound.crg
+dancingNAO/dancingNAO/Movements/Crg_movements/sing_with_me.crg
+dancingNAO/dancingNAO/Movements/Crg_movements/sprinkler.crg
+dancingNAO/dancingNAO/Movements/Crg_movements/workout.crg
+dancingNAO/dancingNAO/Movements/Intermediate/1-Rotation_handgun_object.py
+dancingNAO/dancingNAO/Movements/Intermediate/10-Diagonal_right.py
+dancingNAO/dancingNAO/Movements/Intermediate/12-Rotation_foot_RLeg.py
+dancingNAO/dancingNAO/Movements/Intermediate/13-Rotation_foot_LLeg.py
+dancingNAO/dancingNAO/Movements/Intermediate/2-Right_arm.py
+dancingNAO/dancingNAO/Movements/Intermediate/3-Double_movement.py
+dancingNAO/dancingNAO/Movements/Intermediate/4-Arms_opening.py
+dancingNAO/dancingNAO/Movements/Intermediate/5-Union_arms.py
+dancingNAO/dancingNAO/Movements/Intermediate/7-Move_forward.py
+dancingNAO/dancingNAO/Movements/Intermediate/8-Move_backward.py
+dancingNAO/dancingNAO/Movements/Intermediate/9-Diagonal_left.py
+dancingNAO/dancingNAO/Movements/Mandatory/11-Stand.py
+dancingNAO/dancingNAO/Movements/Mandatory/14-StandInit.py
+dancingNAO/dancingNAO/Movements/Mandatory/15-StandZero.py
+dancingNAO/dancingNAO/Movements/Mandatory/16-Sit.py
+dancingNAO/dancingNAO/Movements/Mandatory/17-SitRelax.py
+dancingNAO/dancingNAO/Movements/Mandatory/6-Crouch.py
+dancingNAO/dancingNAO/song3.mp3
+dancingNAO/dancingNAO/song3.wav
+dancingNAO/demo_wearing_out/demo_wearing_out.pml
+dancingNAO/demo_wearing_out/demo_wearing_out/behavior.xar
+dancingNAO/HeadShouldersLearn2/behavior_1/behavior.xar
+dancingNAO/HeadShouldersLearn2/HeadShouldersLearn2.pml
+Dances The Macarena/Dances The Macarena/behavior.xar
+Dances The Macarena/manifest.xml

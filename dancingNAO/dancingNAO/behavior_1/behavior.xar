@@ -1953,8 +1953,9 @@ ln.sit()
 ln.say()
 ln.stand()
 ln.wearing_out()
+#ln.arms_opening()
 #ln.mov_3()
-ln.venia() #last_movement
+#ln.venia() #last_movement
 #ln.move_to_with_velocity(0.1,0,0.0,0.0)
 #ln.head_pitch()
 #ln.double_movement()
