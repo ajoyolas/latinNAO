@@ -4,7 +4,7 @@ Project of Fundamental of AI in which NAO robot will dance following a choreogra
 Song: Con Calma by Daddy Yankee ( The file song3.wav is inside of the project folder)
 Gender: Reggaeton
 Participants:   Angely Oyola and 
-				Marcello Scibaldi
+				Marcello Sicbaldi
 
 Goals:
 This project has got the following goals:
