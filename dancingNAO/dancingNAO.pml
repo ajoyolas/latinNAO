@@ -3,7 +3,6 @@
     <Manifest src="manifest.xml" />
     <BehaviorDescriptions>
         <BehaviorDescription name="behavior" src="behavior_1" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="dancingNAO/behavior_1" xar="behavior.xar" />
     </BehaviorDescriptions>
     <Dialogs />
     <Resources>
@@ -11,9 +10,6 @@
         <File name="" src="behavior_1/.DS_Store" />
         <File name="song3" src="behavior_1/song3.wav" />
         <File name="song3" src="song3.wav" />
-        <File name="" src="dancingNAO/.DS_Store" />
-        <File name="" src="dancingNAO/behavior_1/.DS_Store" />
-        <File name="dancingNAO" src="dancingNAO/dancingNAO.pml" />
     </Resources>
     <Topics />
     <IgnoredPaths />
