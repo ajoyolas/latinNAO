@@ -3,7 +3,7 @@ Project of Fundamental of AI in which NAO robot will dance following a choreogra
 
 Song: Con Calma by Daddy Yankee ( The file song3.wav is inside of the project folder)
 Gender: Reggaeton
-Participants:   Angely Oyola
+Participants:   Angely Oyola and 
 				Marcello Scibaldi
 
 Goals:
@@ -31,4 +31,9 @@ And the rules are:
    considered the most satisfying from the artistic point of view
 4) We must use mandatory positions and also intermadiate ones.
 
-This project can be cloned or forked using github and only requires to have python installed 
+This project can be cloned or forked using github 
+
+Requirements:
+1) Python 3.5 installed
+2) Choregraphe 2.1.4.13 ( or above ) installed 
+
